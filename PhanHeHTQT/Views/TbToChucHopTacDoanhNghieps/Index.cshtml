@@ -356,9 +356,33 @@
                             }
                         },
                         {
+                            className: 'btn btn-header btn-download',
+                            text: '<i class="fas fa-download me-2" style="color: white"></i>Danh Mục ID',
+                            action: function (e, dt, node, config) {
+                                // URL của file cần tải xuống
+                                const fileUrl = '/xlsx/Danh Mục ID.xlsx';
+                                // Tạo thẻ <a> để thực hiện tải file
+                                const link = document.createElement('a');
+                                link.href = fileUrl;
+                                link.download = 'Danh Mục ID.xlsx'; // Tên file khi tải xuống
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                            }
+                        },
+
+                        {
                             className: 'btn btn-header btn-excel',
                             extend: 'excel',
                             text: '<i class="fas fa-file-export me-2" style="color: white"></i>Xuất Excel',
+                            filename: function () {
+                                const viewTitle = document.querySelector('h1').innerText.trim();
+                                return viewTitle || 'Index';
+                            },
+                            title: null,
+                            exportOptions: {
+                                columns: ':not(:first-child):not(:last-child)',
+                            }
                         },
                         {
                             className: 'btn btn-header btn-excel',
