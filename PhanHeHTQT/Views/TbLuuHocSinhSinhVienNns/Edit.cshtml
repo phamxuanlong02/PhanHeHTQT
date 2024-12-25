@@ -1,0 +1,284 @@
+﻿@model PhanHeHTQT.Models.TbLuuHocSinhSinhVienNn
+
+@{
+    ViewData["Title"] = "Edit";
+}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<style>
+    body {
+        background-image: url(https://upload.wikimedia.org/wikipedia/vi/8/85/Logo_hoc_vien_ANND.png); /* Đặt hình nền */
+        background-size: 150px 150px; /* Kích thước hình nền */
+        background-position: top right; /* Đặt vị trí hình nền phía trên */
+        background-repeat: no-repeat; /* Không lặp lại hình nền */
+        margin-bottom: 90px; /* Khoảng cách dưới cùng */
+        margin-top: 90px;
+        background-color: rgba(128, 148, 219, 1);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 0;
+    }
+
+    h1 {
+        color: #25396f; /* Màu chữ của tiêu đề */
+        text-align: center; /* Canh giữa nội dung tiêu đề */
+        margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+        font-size: 2.5rem; /* Kích thước chữ lớn */
+        text-transform: uppercase; /* Chuyển tất cả chữ thành in hoa */
+        font-weight: bold; /* Chữ đậm */
+    }
+
+
+
+    .form-container {
+        background: linear-gradient(270deg, #0275d8,#8094dbd9 ); /* Áp dụng màu gradient */
+        padding: 30px; /* Khoảng cách bên trong */
+        border-radius: 12px; /* Bo tròn góc */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+        max-width: 800px; /* Chiều rộng tối đa */
+        margin: 40px auto; /* Căn giữa phần tử */
+        color: #333; /* Màu chữ đậm */
+    }
+
+
+        .form-container h4 {
+            color: #5bc0de; /* Màu tiêu đề bên trong khung là đỏ đậm */
+
+            text-align: center; /* Căn giữa chữ */
+            margin-bottom: 20px; /* Khoảng cách dưới chữ */
+            font-weight: bold; /* Chữ in đậm */
+        }
+
+    .form-grid {
+        display: grid; /* Sử dụng bố cục dạng lưới cho biểu mẫu */
+        grid-template-columns: repeat(2, 1fr); /* Chia biểu mẫu thành 2 cột bằng nhau */
+        gap: 15px; /* Khoảng cách giữa các phần tử là 15px */
+    }
+
+
+    .form-group {
+        padding: 10px; /* Khoảng cách bên trong từng nhóm là 10px */
+        border: 1px solid #ddd; /* Viền mỏng màu xám nhạt */
+        border-radius: 8px; /* Bo tròn các góc của từng nhóm */
+        background-color: #f9f9f9; /* Nền màu xám nhạt */
+    }
+
+        .form-group label {
+            font-weight: bold; /* Chữ in đậm cho nhãn của biểu mẫu */
+        }
+
+        .form-group p {
+            margin: 5px 0; /* Khoảng cách trên và dưới là 5px */
+            color: #333; /* Màu chữ xám đậm */
+        }
+
+    .btn-primary {
+        background-color: #0275d8; /* Màu nền là màu xanh lam đậm */
+        border-color: #0275d8; /* Màu viền là màu xanh lam đậm */
+        border: 1px solid black; /* Đặt viền màu đen dày 1px */
+        color: #fff; /* Màu chữ là màu trắng */
+        padding: 10px 20px; /* Khoảng cách giữa nội dung và viền của nút */
+        border-radius: 8px; /* Bo tròn các góc của nút với bán kính 8px */
+        font-size: 1rem; /* Kích thước chữ là 1 rem (tương đương với kích thước cơ bản của font chữ) */
+        font-weight: bold; /* Chữ đậm */
+        cursor: pointer; /* Đổi con trỏ chuột thành hình bàn tay khi di chuột vào nút */
+        transition: background 0.3s ease, transform 0.2s ease; /* Hiệu ứng chuyển màu nền và di chuyển nút khi hover */
+    }
+
+        .btn-primary:hover {
+            background-color: #025aa5; /* Màu nền khi hover */
+            transform: translateY(-2px); /* Nâng nút lên khi hover */
+        }
+
+        .btn-primary:active {
+            transform: translateY(0); /* Đặt lại vị trí khi nhấn nút */
+        }
+
+    .btn-secondary {
+        background-color: rgba(128, 148, 219, 1); /* Màu nền nút phụ */
+        border-color: rgba(128, 148, 219, 1); /* Màu viền nút phụ */
+        border: 1px solid black; /* Viền màu đen */
+        color: #fff; /* Màu chữ */
+        padding: 10px 20px; /* Kích thước nút */
+        border-radius: 8px; /* Bo tròn góc nút */
+        font-size: 1rem; /* Kích thước chữ */
+        font-weight: bold; /* Chữ in đậm */
+        text-decoration: none; /* Không gạch chân */
+        text-align: center; /* Căn giữa nội dung nút */
+        transition: background 0.3s ease, transform 0.2s ease; /* Hiệu ứng chuyển đổi */
+    }
+
+        .btn-secondary:hover {
+            background-color: rgba(100, 120, 200, 1); /* Màu nền khi hover */
+            transform: translateY(-2px); /* Nâng nút lên khi hover */
+        }
+
+    a {
+        color: rgba(128, 148, 219, 1); /* Màu liên kết */
+        font-weight: bold; /* Chữ in đậm */
+        text-decoration: none; /* Không gạch chân */
+        margin-left: 10px; /* Khoảng cách bên trái */
+        transition: color 0.3s ease; /* Hiệu ứng đổi màu */
+    }
+
+        a:hover {
+            color: rgba(100, 120, 200, 1); /* Màu liên kết khi hover */
+        }
+
+
+    .snowflake {
+        position: absolute;
+        top: -10px; /* Bắt đầu rơi từ phía trên */
+        color: white;
+        font-size: 1em;
+        opacity: 0.8; /* Độ mờ của tuyết */
+        pointer-events: none; /* Không ảnh hưởng đến sự kiện chuột */
+    }
+    /* Phong cách cho phần chữ cuộn */
+    .scrolling-text-container {
+        width: 100%; /* Chiều rộng đầy đủ */
+        height: 50px; /* Chiều cao của phần chứa chữ cuộn */
+        overflow: hidden; /* Ẩn phần vượt ra ngoài */
+        background-color: rgba(128, 148, 219, 0); /* Màu nền cho phần cuộn */
+        padding: 2px 0; /* Khoảng cách cho phần cuộn */
+        margin-top: 20px; /* Khoảng cách trên */
+        white-space: nowrap; /* Không cho phép văn bản xuống dòng */
+        position: relative; /* Để chữ có thể di chuyển ra ngoài */
+    }
+
+    /* Phong cách cho chữ cuộn */
+    .scrolling-text {
+        display: inline-block;
+        color: white; /* Màu chữ trắng */
+        font-size: 30px; /* Kích thước chữ */
+        font-weight: bold; /* Chữ đậm */
+        position: absolute;
+        left: 100%; /* Đặt chữ bắt đầu từ bên phải */
+        font-family: Arial, sans-serif; /* Sử dụng font Arial cho chữ cuộn */
+    }
+</style>
+<script>
+    const snowflakes = [];
+    const snowflakeCount = 50; // Số lượng tuyết cần tạo
+    const createInterval = 100; // Tạo snowflake mới mỗi 100ms
+    const updateInterval = 20; // Tốc độ cập nhật vị trí
+
+    function createSnowflake() {
+        const snowflake = document.createElement('div');
+        snowflake.classList.add('snowflake');
+        snowflake.textContent = '❄'; // Ký tự tuyết
+        snowflake.style.left = Math.random() * window.innerWidth + 'px'; // Vị trí ngẫu nhiên
+        snowflake.style.fontSize = Math.random() * 10 + 30 + 'px'; // Kích thước ngẫu nhiên
+        snowflake.style.animationDuration = Math.random() * 3 + 2 + 's'; // Thời gian rơi ngẫu nhiên
+        snowflake.style.animationDelay = Math.random() * 2 + 's'; // Thời gian trễ ngẫu nhiên
+        snowflake.style.opacity = Math.random(); // Độ mờ ngẫu nhiên
+        snowflake.style.position = 'absolute';
+        snowflake.style.top = '-10px'; // Bắt đầu từ phía trên
+        document.body.appendChild(snowflake);
+        snowflakes.push(snowflake);
+
+        // Xóa tuyết khi rơi xong
+        setTimeout(() => {
+            snowflake.remove();
+        }, 5000); // Thời gian phải trùng với animation-duration lớn nhất
+    }
+
+    function updateSnowflakes() {
+        for (let i = 0; i < snowflakes.length; i++) {
+            const snowflake = snowflakes[i];
+            const top = parseFloat(snowflake.style.top || -10);
+            if (top > window.innerHeight) {
+                snowflake.style.top = '-10px'; // Reset khi tuyết rơi xuống hết
+                snowflake.style.left = Math.random() * window.innerWidth + 'px'; // Vị trí mới
+            } else {
+                snowflake.style.top = top + 1 + 'px';
+            }
+        }
+    }
+
+    // Tạo tuyết và cập nhật vị trí tuyết liên tục
+    setInterval(createSnowflake, createInterval); // Tạo tuyết mới mỗi 100ms
+    setInterval(updateSnowflakes, updateInterval); // Cập nhật vị trí tuyết mỗi 20ms
+</script>
+<h1>CHỈNH SỬA THÔNG TIN LƯU HỌC VIÊN NƯỚC NGOÀI</h1>
+
+<div class="form-container">
+    <div class="scrolling-text-container">
+        <div class="scrolling-text">
+            <h2>Bạn đang chỉnh sửa đoàn công tác: @Model.IdNguoiHoc</h2>
+        </div>
+    </div>
+    <script>
+        // Lấy phần tử cuộn chữ
+        var scrollingText = document.querySelector('.scrolling-text');
+        var container = document.querySelector('.scrolling-text-container');
+
+        // Tạo hiệu ứng cuộn chữ tự động và lặp
+        function startScrolling() {
+            // Đặt lại vị trí chữ
+            scrollingText.style.transition = 'none';
+            scrollingText.style.left = '100%'; // Bắt đầu từ ngoài bên phải màn hình
+
+            // Cập nhật lại chiều rộng của văn bản và container
+            var textWidth = scrollingText.offsetWidth;
+            var containerWidth = container.offsetWidth;
+
+            // Tính toán vị trí kết thúc (ra khỏi màn hình bên trái)
+            var stopPosition = -textWidth;
+
+            // Bắt đầu cuộn từ phải sang trái
+            setTimeout(function () {
+                scrollingText.style.transition = 'left 20s linear';
+                scrollingText.style.left = stopPosition + 'px'; // Cuộn đến bên ngoài màn hình bên trái
+            }, 100);
+
+            // Khi hoàn thành cuộn, gọi lại hiệu ứng để lặp
+            scrollingText.addEventListener('transitionend', function resetPosition() {
+                scrollingText.removeEventListener('transitionend', resetPosition); // Xóa sự kiện để tránh lặp vô hạn
+                startScrolling(); // Gọi lại hiệu ứng từ đầu
+            });
+        }
+
+        // Bắt đầu hiệu ứng cuộn ngay khi trang tải
+        window.onload = startScrolling;
+    </script>
+    <hr />
+    <form asp-action="Edit">
+        <div class="form-grid">
+            <input asp-for="IdLuuHocSinhSinhVienNn" type="hidden" />
+            <div class="form-group">
+                <label asp-for="IdNguoiHoc" class="control-label"></label>
+                <input asp-for="IdNguoiHoc" class="form-control" />
+                <span asp-validation-for="IdNguoiHoc" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdNguonKinhPhiLuuHocSinh" class="control-label"></label>
+                <select asp-for="IdNguonKinhPhiLuuHocSinh" class="form-control" asp-items="ViewBag.IdNguonKinhPhiLuuHocSinh"></select>
+                <span asp-validation-for="IdNguonKinhPhiLuuHocSinh" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdLoaiLuuHocSinh" class="control-label"></label>
+                <select asp-for="IdLoaiLuuHocSinh" class="form-control" asp-items="ViewBag.IdLoaiLuuHocSinh"></select>
+                <span asp-validation-for="IdLoaiLuuHocSinh" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a>
+                <!-- Save Button with Icon and Vietnamese Text -->
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Lưu
+                </button>
+            </a>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Quay lại danh sách
+            </a>
+        </div>
+
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

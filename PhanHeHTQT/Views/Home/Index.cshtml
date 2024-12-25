@@ -1,0 +1,149 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<style>
+    body {
+        background-image: url(https://upload.wikimedia.org/wikipedia/vi/8/85/Logo_hoc_vien_ANND.png);
+        background-size: 150px 150px;
+        background-position: top right;
+        background-repeat: no-repeat;
+        background-color: rgba(128, 148, 219, 1);
+        margin-bottom: 90px;
+        margin-top: 90px;
+        color: #25396f;
+        font-family: Arial, sans-serif;
+    }
+
+    .falling-letters {
+        display: inline-flex;
+    }
+
+        .falling-letters span {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(-100px);
+            transition: all 1s ease;
+            font-size: 50px;
+        }
+
+    .team-container {
+        background-color: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        width: 60%;
+        margin: 30px auto;
+        padding: 20px;
+        font-size: 1.2rem;
+        line-height: 1.6;
+        transform: scale(0); /* Khởi tạo với kích thước nhỏ */
+        transition: transform 2s ease-out; /* Hiệu ứng mở rộng */
+    }
+
+    .team-header {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+        font-weight: bold;
+    }
+
+    .team-members {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+        .team-members h3 {
+            margin-bottom: 10px;
+            opacity: 0; /* Ban đầu ẩn */
+            transform: translateY(-50px); /* Chữ bắt đầu từ trên */
+            transition: transform 1s ease-out, opacity 1s ease-out; /* Hiệu ứng di chuyển và xuất hiện */
+        }
+
+        .team-members ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+            .team-members ul li {
+                margin-bottom: 10px;
+                padding-left: 0;
+                opacity: 0; /* Ban đầu các thành viên sẽ ẩn */
+                transform: translateX(-100px); /* Các phần tử sẽ bắt đầu từ ngoài bên trái */
+                transition: transform 1s ease-out, opacity 1s ease-out; /* Hiệu ứng rơi vào và xuất hiện */
+            }
+
+</style>
+
+<div class="text-center">
+    <div class="falling-letters">
+        <strong>
+            <span>Phân&nbsp;</span>
+            <span>hệ&nbsp;</span>
+            <span>Hợp&nbsp;</span>
+            <span>tác&nbsp;</span>
+            <span>quốc&nbsp;</span>
+            <span>tế</span>
+        </strong>
+    </div>
+</div>
+
+<!-- Phần thông tin nhóm -->
+<div class="team-container">
+    <div class="team-header">
+        <h2>Thực hiện bởi nhóm 5</h2>
+        <hr />
+    </div>
+    <div class="team-members">
+        <h3>Gồm các thành viên:</h3>
+        <ul>
+            <li style="padding-left: 16em;">AT.013: Ca Kỳ Hòa</li>
+            <li style="padding-left: 16em;">AT.019: Phạm Xuân Long </li>
+            <li style="padding-left: 16em;">AT.015: Nguyễn Hoàng Khiêm </li>
+            <li style="padding-left: 16em;">AT.007: Cao Phạm Tuấn Dũng</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const letters = document.querySelectorAll(".falling-letters span");
+        const teamContainer = document.querySelector(".team-container");
+        const teamHeader = document.querySelector(".team-members h3");
+        const teamMembers = document.querySelectorAll(".team-members ul li");
+
+        // Xử lý hiệu ứng rơi của chữ
+        letters.forEach((letter, index) => {
+            setTimeout(() => {
+                letter.style.opacity = "1";
+                letter.style.transform = "translateY(0)";
+            }, index * 100); // 150ms cho mỗi chữ cái
+        });
+
+        // Sau khi hoàn thành hiệu ứng rơi của chữ, mở rộng team-container
+        setTimeout(() => {
+            teamContainer.style.transform = "scale(1)"; // Mở rộng team-container
+
+            // Đảm bảo "Gồm các thành viên" xuất hiện
+            setTimeout(() => {
+                teamHeader.style.opacity = "1";
+                teamHeader.style.transform = "translateY(0)"; // Gồm các thành viên xuất hiện với hiệu ứng giống Ca Kỳ Hòa
+            }, 1500); // Chờ 1s sau khi team-container phóng to
+
+            // Sau khi "Gồm các thành viên" xuất hiện, làm các thành viên "rớt vào"
+            setTimeout(() => {
+                teamMembers.forEach((member, index) => {
+                    setTimeout(() => {
+                        member.style.opacity = "1";
+                        member.style.transform = "translateX(0)"; // Các thành viên rớt vào
+                    }, index * 1300); // Thời gian delay giữa mỗi thành viên
+                });
+            }, 2000); // Thời gian chờ sau khi "Gồm các thành viên" xuất hiện (2s)
+
+        }, letters.length * 200); // Sau khi tất cả các chữ cái rơi xong
+    });
+</script>
+

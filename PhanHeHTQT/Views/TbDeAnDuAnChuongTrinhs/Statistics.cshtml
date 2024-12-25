@@ -1,0 +1,642 @@
+﻿@model IEnumerable<PhanHeHTQT.Models.TbDeAnDuAnChuongTrinh>
+@using Newtonsoft.Json
+@{
+    ViewData["Title"] = "Statistics";
+    List<string> label = new List<string>();
+    List<double?> data = new List<double?>();
+    foreach (var item in Model)
+    {
+        label.Add(item.TenDeAnDuAnChuongTrinh);
+        data.Add(item.TongKinhPhi);
+    }
+    string label_ = JsonConvert.SerializeObject(label.ToArray());
+    string data_ = JsonConvert.SerializeObject(data.ToArray());
+    Console.WriteLine(label_);
+    string labelJson = "", dataJson = "";
+    Dictionary<string, int> Times_Thu = new Dictionary<string, int>();
+    foreach (var item in Model)
+    {
+        string nguon = "";
+        if (item.IdNguonKinhPhiDeAnDuAnChuongTrinh.HasValue)
+        {
+            nguon = item.IdNguonKinhPhiDeAnDuAnChuongTrinhNavigation.NguonKinhPhiChoDeAn;
+        }
+        if (Times_Thu.ContainsKey(nguon)) ++Times_Thu[nguon];
+        else Times_Thu[nguon] = 1;
+    }
+    List<string> label1 = new List<string>();
+    List<int> data1 = new List<int>();
+    foreach (var it in Times_Thu)
+    {
+        label1.Add(it.Key);
+        data1.Add(it.Value);
+    }
+    labelJson = JsonConvert.SerializeObject(label1);
+    dataJson = JsonConvert.SerializeObject(data1);
+    Dictionary<string, double> SumNguonKinhPhi = new Dictionary<string, double>();
+
+    foreach (var item in Model)
+    {
+        string tien = "";
+        double giaTri = 0;
+
+        // Kiểm tra nếu IdNguonKinhPhiDeAnDuAnChuongTrinh có giá trị
+
+        if (item.IdNguonKinhPhiDeAnDuAnChuongTrinh.HasValue)
+        {
+            tien = item.IdNguonKinhPhiDeAnDuAnChuongTrinhNavigation.NguonKinhPhiChoDeAn;
+            giaTri = item.TongKinhPhi.HasValue ? item.TongKinhPhi.Value : 0; // Lấy giá trị kinh phí
+        }
+
+        // Cộng giá trị vào từ điển
+        if (SumNguonKinhPhi.ContainsKey(tien))
+        {
+            SumNguonKinhPhi[tien] += giaTri; // Cộng dồn giá trị nếu nguồn kinh phí đã tồn tại
+        }
+        else
+        {
+            SumNguonKinhPhi[tien] = giaTri; // Thêm mới nguồn kinh phí nếu chưa tồn tại
+        }
+    }
+
+    // Chuyển kết quả từ từ điển sang danh sách (đảm bảo không thêm lặp lại)
+    List<string> label2 = new List<string>(SumNguonKinhPhi.Keys); // Danh sách các nguồn kinh phí
+    List<double> data2 = new List<double>(SumNguonKinhPhi.Values); // Tổng giá trị tương ứng
+
+    // Chuyển đổi sang JSON
+    string labelJson2 = JsonConvert.SerializeObject(label2);
+    string dataJson2 = JsonConvert.SerializeObject(data2);
+
+}
+
+<h1>THỐNG KÊ</h1>
+
+    <title>Visualize Data Beautifully Using JS Charts</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+    @section Heads{
+    <style>
+        th, td {
+            text-align: center; /* Canh giữa nội dung trong ô */
+            vertical-align: middle; /* Căn giữa nội dung theo chiều dọc */
+            font-family: Arial, sans-serif; /* Sử dụng font chữ Arial hoặc sans-serif */
+        }
+
+        h1, h3, h4 {
+            text-align: center; /* Canh giữa tiêu đề */
+        }
+
+
+        body {
+            background-image: url(https://upload.wikimedia.org/wikipedia/vi/8/85/Logo_hoc_vien_ANND.png); /* Đặt hình nền */
+            background-size: 150px 150px; /* Kích thước hình nền */
+            background-position: top right; /* Đặt vị trí hình nền phía trên */
+            background-repeat: no-repeat; /* Không lặp lại hình nền */
+            background-color: rgba(128, 148, 219, 1); /* Màu nền mặc định */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Phông chữ */
+            margin-bottom: 90px; /* Khoảng cách dưới cùng */
+            margin-top: 90px; /* Khoảng cách trên cùng */
+            padding: 0; /* Không có khoảng cách bên trong */
+            color: #fff; /* Màu chữ */
+        }
+
+        h1 {
+            color: white; /* Màu chữ của tiêu đề */
+            text-align: center; /* Căn giữa tiêu đề */
+            margin-top: 60px;
+            margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+            text-transform: uppercase; /* Chuyển chữ thành in hoa */
+            font-weight: bold; /* Chữ in đậm */
+        }
+        /* Phong cách cho nhãn */
+        label {
+            font-family: 'Arial', sans-serif;
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        /* Phong cách cho dropdown */
+        #chartDropdown {
+            width: 100%;
+            max-width: 500px; /* Giới hạn chiều rộng */
+            padding: 12px 16px;
+            font-size: 16px;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            background-color: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px; /* Bo tròn góc */
+            outline: none;
+            appearance: none; /* Ẩn mũi tên mặc định trên một số trình duyệt */
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Hiệu ứng bóng */
+            transition: all 0.3s ease;
+        }
+
+            /* Hiệu ứng hover */
+            #chartDropdown:hover {
+                background-color: #fff;
+                border-color: #007BFF;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            /* Hiệu ứng khi focus */
+            #chartDropdown:focus {
+                border-color: #007BFF;
+                box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+            }
+
+            /* Tùy chỉnh các tùy chọn trong dropdown */
+            #chartDropdown option {
+                padding: 10px;
+                font-size: 14px;
+                color: #333;
+            }
+
+        .chart-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Tạo bóng cho container */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+            .chart-container canvas {
+                width: 100%; /* Đảm bảo biểu đồ chiếm toàn bộ chiều rộng */
+                height: 500px;/* Chiều cao của biểu đồ */
+            }
+        /* Hiệu ứng cho tiêu đề */
+        h1 {
+            font-family: 'Arial', sans-serif;
+            font-size: 40px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+    #myChartn,#myChart3, #myChart5 {
+            height: 500px !important; /* Đặt chiều cao cụ thể cho biểu đồ */
+        }
+
+    </style>
+
+    }
+
+<!-- Dropdown -->
+<label for="chartDropdown">Chọn biểu đồ để hiển thị:</label>
+<select id="chartDropdown" style="margin-bottom: 50px">
+    <option value="">-- Chọn biểu đồ --</option>
+    <option value="chart1">Biểu đồ 1: THỐNG KÊ TỔNG KINH PHÍ CÁC ĐỀ ÁN DỰ ÁN CHƯƠNG TRÌNH</option>
+    <option value="chart2">Biểu đồ 2: CƠ CẤU KINH PHÍ</option>
+    <option value="chart3">Biểu đồ 3: CƠ CẤU NGUỒN NGÂN SÁCH THEO SỐ LƯỢNG ĐỀ ÁN</option>
+    <option value="chart4">Biểu đồ 4: THỐNG KÊ NGUỒN NGÂN SÁCH THEO SỐ LƯỢNG ĐỀ ÁN</option>
+    <option value="chart5">Biểu đồ 5: CƠ CẤU NGUỒN KINH PHÍ THEO TỔNG KINH PHÍ</option>
+    <option value="chart6">Biểu đồ 6: THỐNG KÊ NGUỒN KINH PHÍ THEO TỔNG KINH PHÍ</option>
+
+</select>
+<!-- Biểu đồ 1 -->
+<div id="chart1" class="chart-container" style=" margin-bottom:100px" color="black">
+    <canvas id="myChart"></canvas>
+</div>
+
+<!-- Biểu đồ 2 -->
+<div id="chart2" class="chart-container" style=" margin-bottom:100px">
+    <canvas id="myChartn"></canvas>
+</div>
+
+<!-- Biểu đồ 3 -->
+<div id="chart3" class="chart-container" style=" margin-bottom:100px">
+    <canvas id="myChart3"></canvas>
+</div>
+<!-- Biểu đồ 4 -->
+<div id="chart4" class="chart-container" style="display:none; margin-bottom:100px">
+    <canvas id="myChart4"></canvas>
+</div>
+<!-- Biểu đồ 5 -->
+<div id="chart5" class="chart-container" style=" margin-bottom:100px">
+    <canvas id="myChart5"></canvas>
+</div>
+<!-- Biểu đồ 6 -->
+<div id="chart6" class="chart-container" style="display:none; margin-bottom:100px">
+    <canvas id="myChart6"></canvas>
+</div>
+
+<script>
+    let myChart = document.getElementById('myChart').getContext('2d');
+    // Global Options
+    Chart.defaults.global.defaultFontFamily = 'Lato';
+    Chart.defaults.global.defaultFontSize = 18;
+    Chart.defaults.global.defaultFontColor = '#777';
+
+    let massPopChart = new Chart(myChart, {
+        type: 'bar', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+        data: {
+            labels: @Html.Raw(label_),
+            datasets: [{
+                label: 'Tổng kinh phí',
+                data: @Html.Raw(data_)
+                                ,
+                //backgroundColor:'green',
+                backgroundColor: (function () {
+                    const dataArray = @Html.Raw(data_); // Chèn dữ liệu JavaScript từ Razor
+                    return new Array(dataArray.length).fill('rgb(30,41,107)'); // Tạo mảng màu xanh với chiều dài tương ứng
+                })(),
+                borderWidth: 1,
+                borderColor: '#777',
+                hoverBorderWidth: 3,
+                hoverBorderColor: '#000'
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        autoSkip: false, // Hiển thị đầy đủ các nhãn
+                        fontSize: 16, // Giảm kích thước font chữ
+                        callback: function (value) {
+                            // Chia nhãn thành các dòng dựa trên độ dài
+                            let words = value.split(' '); // Tách nhãn thành mảng từ
+                            let lines = [];
+                            let line = '';
+                            words.forEach(word => {
+                                if ((line + word).length > 10) { // Đặt giới hạn mỗi dòng là 15 ký tự
+                                    lines.push(line.trim());
+                                    line = '';
+                                }
+                                line += word + ' ';
+                            });
+                            if (line) lines.push(line.trim()); // Thêm dòng còn lại
+                            return lines; // Trả về mảng dòng
+                        }
+                    }
+                }],
+            },
+            title:
+            {
+                display: true,
+                text: 'THỐNG KÊ TỔNG KINH PHÍ CÁC ĐỀ ÁN DỰ ÁN CHƯƠNG TRÌNH',
+                fontSize: 25
+            },
+            legend:
+            {
+                display: true,
+                position: 'right',
+                labels: {
+                    fontColor: '#000'
+                }
+            },
+            layout:
+            {
+                padding: {
+                    left: 50,
+                    right: 0,
+                    bottom: 0,
+                    top: 0
+                }
+            },
+            tooltips: {
+                enabled: true
+            }
+        }
+    });
+
+</script>
+
+
+<script>
+    // Dữ liệu từ C#
+    const labels = @Html.Raw(label_); //
+    const data = @Html.Raw(data_);    //
+
+    // Lấy phần tử canvas
+    const ctx = document.getElementById('myChartn').getContext('2d');
+
+    // Cấu hình biểu đồ
+    const config = {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: ['rgba(33, 150, 243, 0.8)', 'rgba(56, 142, 60, 0.8)', 'rgba(253, 216, 53, 0.8)', 'rgba(255, 87, 34, 0.8)', 'rgba(103, 58, 183, 0.8)', 'rgba(0, 188, 212, 0.8)', 'rgba(255, 64, 129, 0.8)', 'rgba(158, 158, 158, 0.8)', 'rgba(245, 34, 45, 0.8)', 'rgba(0, 150, 136, 0.8)', 'rgba(121, 85, 72, 0.8)', 'rgba(253, 216, 53, 0.8)', 'rgba(21, 101, 192, 0.8)', 'rgba(0, 105, 92, 0.8)', 'rgba(96, 125, 139, 0.8)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'CƠ CẤU KINH PHÍ',
+                fontSize: 25
+            },
+            maintainAspectRatio: false,// Để thu phóng tự do
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Biểu đồ phân loại theo ca'
+                }
+            }
+        }
+    };
+
+    // Vẽ biểu đồ
+    new Chart(ctx, config);
+
+</script>
+<script>
+    // Dữ liệu từ C#
+    const labels1 = @Html.Raw(labelJson); //
+    const data1 = @Html.Raw(dataJson);    //
+
+    // Lấy phần tử canvas
+    const ctx1 = document.getElementById('myChart3').getContext('2d');
+
+    // Cấu hình biểu đồ
+    const config1 = {
+        type: 'pie',
+        data: {
+            labels: labels1,
+            datasets: [{
+                data: data1,
+                backgroundColor: ['rgba(33, 150, 243, 0.8)', 'rgba(56, 142, 60, 0.8)', 'rgba(253, 216, 53, 0.8)', 'rgba(255, 87, 34, 0.8)', 'rgba(103, 58, 183, 0.8)', 'rgba(0, 188, 212, 0.8)', 'rgba(255, 64, 129, 0.8)', 'rgba(158, 158, 158, 0.8)', 'rgba(245, 34, 45, 0.8)', 'rgba(0, 150, 136, 0.8)', 'rgba(121, 85, 72, 0.8)', 'rgba(253, 216, 53, 0.8)', 'rgba(21, 101, 192, 0.8)', 'rgba(0, 105, 92, 0.8)', 'rgba(96, 125, 139, 0.8)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'CƠ CẤU NGUỒN NGÂN SÁCH THEO SỐ LƯỢNG ĐỀ ÁN',
+                fontSize: 25
+            },
+            maintainAspectRatio: false,// Để thu phóng tự do
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Biểu đồ phân loại theo ca'
+                }
+            }
+        }
+    };
+
+    // Vẽ biểu đồ
+    new Chart(ctx1, config1);
+
+</script>
+
+
+<script>
+    let myChart4 = document.getElementById('myChart4').getContext('2d');
+    // Global Options
+    Chart.defaults.global.defaultFontFamily = 'Lato';
+    Chart.defaults.global.defaultFontSize = 18;
+    Chart.defaults.global.defaultFontColor = '#777';
+
+    let massPopChart4 = new Chart(myChart4, {
+        type: 'bar', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+        data: {
+            labels: @Html.Raw(labelJson),
+            datasets: [{
+                label: 'Số đề án dự án',
+                data: @Html.Raw(dataJson),
+                backgroundColor: (function () {
+                    const dataArray = @Html.Raw(dataJson); // Chèn dữ liệu JavaScript từ Razor
+                    return new Array(dataArray.length).fill('rgb(30,41,107)'); // Tạo mảng màu xanh với chiều dài tương ứng
+                })(),
+                borderWidth: 1,
+                borderColor: '#777',
+                hoverBorderWidth: 3,
+                hoverBorderColor: '#000',
+                barThickness: 10,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        autoSkip: false, // Hiển thị đầy đủ các nhãn
+                        fontSize: 16, // Giảm kích thước font chữ
+                        callback: function (value) {
+                            // Chia nhãn thành các dòng dựa trên độ dài
+                            let words = value.split(' '); // Tách nhãn thành mảng từ
+                            let lines = [];
+                            let line = '';
+                            words.forEach(word => {
+                                if ((line + word).length > 10){ // Đặt giới hạn mỗi dòng là 15 ký tự
+                                    lines.push(line.trim());
+                                    line = '';
+                                }
+                                line += word + ' ';
+                            });
+                            if (line) lines.push(line.trim()); // Thêm dòng còn lại
+                            return lines; // Trả về mảng dòng
+                        }
+                    }
+                }],
+            },
+            title: {
+                display: true,
+                text: 'THỐNG KÊ NGUỒN NGÂN SÁCH THEO SỐ LƯỢNG ĐỀ ÁN',
+                fontSize: 25
+            },
+            legend: {
+                display: true,
+                position: 'right',
+                labels: {
+                    fontColor: '#000'
+                }
+            },
+            layout: {
+                padding: {
+                    left: 50,
+                    right: 0,
+                    bottom: 0,
+                    top: 0
+                }
+            },
+            tooltips: {
+                enabled: true
+            }
+        }
+    });
+</script>
+
+
+<script>
+    // Dữ liệu từ C#
+    const labels5 = @Html.Raw(labelJson2); //
+    const data5 = @Html.Raw(dataJson2);    //
+
+    // Lấy phần tử canvas
+    const ctx5 = document.getElementById('myChart5').getContext('2d');
+
+    // Cấu hình biểu đồ
+    const config5 = {
+        type: 'pie',
+        data: {
+            labels: labels5,
+            datasets: [{
+                data: data5,
+                backgroundColor: ['rgba(33, 150, 243, 0.8)', 'rgba(56, 142, 60, 0.8)', 'rgba(253, 216, 53, 0.8)', 'rgba(255, 87, 34, 0.8)', 'rgba(103, 58, 183, 0.8)', 'rgba(0, 188, 212, 0.8)', 'rgba(255, 64, 129, 0.8)', 'rgba(158, 158, 158, 0.8)', 'rgba(245, 34, 45, 0.8)', 'rgba(0, 150, 136, 0.8)', 'rgba(121, 85, 72, 0.8)', 'rgba(253, 216, 53, 0.8)', 'rgba(21, 101, 192, 0.8)', 'rgba(0, 105, 92, 0.8)', 'rgba(96, 125, 139, 0.8)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'CƠ CẤU NGUỒN KINH PHÍ THEO TỔNG KINH PHÍ ĐỀ ÁN DỰ ÁN',
+                fontSize: 25
+            },
+            maintainAspectRatio: false,// Để thu phóng tự do
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Biểu đồ phân loại theo ca'
+                }
+            }
+        }
+    };
+
+    // Vẽ biểu đồ
+    new Chart(ctx5, config5);
+
+</script>
+
+<script>
+    let myChart6 = document.getElementById('myChart6').getContext('2d');
+    // Global Options
+    Chart.defaults.global.defaultFontFamily = 'Lato';
+    Chart.defaults.global.defaultFontSize = 18;
+    Chart.defaults.global.defaultFontColor = '#777';
+
+    let massPopChart6 = new Chart(myChart6, {
+        type: 'bar', // bar, horizontalBar, pie, line, doughnut, radar, polarArea
+        data: {
+            labels: @Html.Raw(labelJson2),
+            datasets: [{
+                label: 'Tổng kinh phí',
+                data: @Html.Raw(dataJson2),
+                backgroundColor: (function () {
+                    const dataArray = @Html.Raw(dataJson2); // Chèn dữ liệu JavaScript từ Razor
+                    return new Array(dataArray.length).fill('rgb(30,41,107)'); // Tạo mảng màu xanh với chiều dài tương ứng
+                })(),
+                borderWidth: 1,
+                borderColor: '#777',
+                hoverBorderWidth: 3,
+                hoverBorderColor: '#000',
+                barThickness: 10,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        autoSkip: false, // Hiển thị đầy đủ các nhãn
+                        fontSize: 16, // Giảm kích thước font chữ
+                        callback: function (value) {
+                            // Chia nhãn thành các dòng dựa trên độ dài
+                            let words = value.split(' '); // Tách nhãn thành mảng từ
+                            let lines = [];
+                            let line = '';
+                            words.forEach(word => {
+                                if ((line + word).length > 10) { // Đặt giới hạn mỗi dòng là 15 ký tự
+                                    lines.push(line.trim());
+                                    line = '';
+                                }
+                                line += word + ' ';
+                            });
+                            if (line) lines.push(line.trim()); // Thêm dòng còn lại
+                            return lines; // Trả về mảng dòng
+                        }
+                    }
+                }],
+            },
+            title: {
+                display: true,
+                text: 'THỐNG KÊ NGUỒN KINH PHÍ THEO TỔNG KINH PHÍ ĐỀ ÁN DỰ ÁN',
+                fontSize: 25
+            },
+            legend: {
+                display: true,
+                position: 'right',
+                labels: {
+                    fontColor: '#000'
+                }
+            },
+            layout: {
+                padding: {
+                    left: 50,
+                    right: 0,
+                    bottom: 0,
+                    top: 0
+                }
+            },
+            tooltips: {
+                enabled: true
+            }
+        }
+    });
+
+</script>
+<!-- code dropdown-->
+<script>
+    // Lấy dropdown và các container biểu đồ
+    const chartDropdown = document.getElementById('chartDropdown');
+    const chartContainers = document.querySelectorAll('.chart-container');
+
+    // Ẩn tất cả các biểu đồ khi tải lại trang
+    window.addEventListener('DOMContentLoaded', function () {
+        chartContainers.forEach(container => container.style.display = 'none');
+    });
+
+    // Lắng nghe sự kiện thay đổi trên dropdown
+    chartDropdown.addEventListener('change', function () {
+        // Ẩn tất cả các biểu đồ
+        chartContainers.forEach(container => container.style.display = 'none');
+
+        // Hiển thị biểu đồ được chọn
+        const selectedChartId = chartDropdown.value;
+        if (selectedChartId) {
+            const selectedChart = document.getElementById(selectedChartId);
+            if (selectedChart) {
+                selectedChart.style.display = 'block';
+            }
+        }
+    });
+</script>
