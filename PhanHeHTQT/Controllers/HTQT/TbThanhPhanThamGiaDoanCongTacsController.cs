@@ -85,7 +85,7 @@ namespace PhanHeHTQT.Controllers.HTQT
         // GET: TbThanhPhanThamGiaDoanCongTacs/Create
         public async Task<IActionResult> Create()
         {
-            ViewData["IdCanBo"] = new SelectList(await TbCanBos(), "IdCanBo", "IdNguoiNavigation.name");
+            ViewData["IdCanBo"] = new SelectList(await TbCanBos(), "IdCanBo", "IdCanBo");
             ViewData["IdDoanCongTac"] = new SelectList(await ApiServices_.GetAll<TbDoanCongTac>("/api/htqt/DoanCongTac"), "IdDoanCongTac", "TenDoanCongTac");
             ViewData["IdVaiTroThamGia"] = new SelectList(await ApiServices_.GetAll<DmVaiTroThamGium>("/api/dm/VaiTroThamGia"), "IdVaiTroThamGia", "VaiTroThamGia");
             return View();
@@ -119,7 +119,7 @@ namespace PhanHeHTQT.Controllers.HTQT
                     await ApiServices_.Create<TbThanhPhanThamGiaDoanCongTac>("/api/htqt/ThanhPhanThamGiaDoanCongTac", tbThanhPhanThamGiaDoanCongTac);
                     return RedirectToAction(nameof(Index));
                 }
-                ViewData["IdCanBo"] = new SelectList(await ApiServices_.GetAll<TbCanBo>("/api/cb/CanBo"), "IdCanBo", "IdNguoiNavigation.name", tbThanhPhanThamGiaDoanCongTac.IdCanBo);
+                ViewData["IdCanBo"] = new SelectList(await ApiServices_.GetAll<TbCanBo>("/api/cb/CanBo"), "IdCanBo", "IdCanBo", tbThanhPhanThamGiaDoanCongTac.IdCanBo);
                 ViewData["IdDoanCongTac"] = new SelectList(await ApiServices_.GetAll<TbDoanCongTac>("/api/htqt/DoanCongTac"), "IdDoanCongTac", "TenDoanCongTac", tbThanhPhanThamGiaDoanCongTac.IdDoanCongTac);
                 ViewData["IdVaiTroThamGia"] = new SelectList(await ApiServices_.GetAll<DmVaiTroThamGium>("/api/dm/VaiTroThamGia"), "IdVaiTroThamGia", "VaiTroThamGia", tbThanhPhanThamGiaDoanCongTac.IdVaiTroThamGia);
 

@@ -117,7 +117,7 @@ namespace PhanHeHTQT.Controllers.HTQT
         {
             try
             {
-                ViewData["IdCanBo"] = new SelectList(await TbCanBos(), "IdCanBo", "IdNguoiNavigation.name");
+                ViewData["IdCanBo"] = new SelectList(await TbCanBos(), "IdCanBo", "IdCanBo");
                 ViewData["IdHinhThucThamGiaGvduocCuDiDaoTao"] = new SelectList(await ApiServices_.GetAll<DmHinhThucThamGiaGvduocCuDiDaoTao>("/api/dm/HinhThucThamGiaGvduocCuDiDaoTao"), "IdHinhThucThamGiaGvduocCuDiDaoTao", "HinhThucThamGiaGvduocCuDiDaoTao");
                 ViewData["IdNguonKinhPhiCuaGv"] = new SelectList(await ApiServices_.GetAll<DmNguonKinhPhiCuaGvduocCuDiDaoTao>("/api/dm/NguonKinhPhiCuaGvduocCuDiDaoTao"), "IdNguonKinhPhiCuaGvduocCuDiDaoTao", "NguonKinhPhiCuaGvduocCuDiDaoTao");
                 ViewData["IdQuocGiaDen"] = new SelectList(await ApiServices_.GetAll<DmQuocTich>("/api/dm/QuocTich"), "IdQuocTich", "TenNuoc");
@@ -168,7 +168,7 @@ namespace PhanHeHTQT.Controllers.HTQT
                     await ApiServices_.Create<TbGvduocCuDiDaoTao>("/api/htqt/GVDuocCuDiDaoTao", tbGvduocCuDiDaoTao);
                     return RedirectToAction(nameof(Index));
                 }
-                ViewData["IdCanBo"] = new SelectList(await ApiServices_.GetAll<TbCanBo>("/api/cb/CanBo"), "IdCanBo", "IdNguoiNavigation.name", tbGvduocCuDiDaoTao.IdCanBo);
+                ViewData["IdCanBo"] = new SelectList(await ApiServices_.GetAll<TbCanBo>("/api/cb/CanBo"), "IdCanBo", "IdCanBo", tbGvduocCuDiDaoTao.IdCanBo);
                 ViewData["IdHinhThucThamGiaGvduocCuDiDaoTao"] = new SelectList(await ApiServices_.GetAll<DmHinhThucThamGiaGvduocCuDiDaoTao>("/api/dm/HinhThucThamGiaGvduocCuDiDaoTao"), "IdHinhThucThamGiaGvduocCuDiDaoTao", "HinhThucThamGiaGvduocCuDiDaoTao", tbGvduocCuDiDaoTao.IdHinhThucThamGiaGvduocCuDiDaoTao);
                 ViewData["IdNguonKinhPhiCuaGv"] = new SelectList(await ApiServices_.GetAll<DmNguonKinhPhiCuaGvduocCuDiDaoTao>("/api/dm/NguonKinhPhiCuaGvduocCuDiDaoTao"), "IdNguonKinhPhiCuaGvduocCuDiDaoTao", "NguonKinhPhiCuaGvduocCuDiDaoTao", tbGvduocCuDiDaoTao.IdNguonKinhPhiCuaGv);
                 ViewData["IdQuocGiaDen"] = new SelectList(await ApiServices_.GetAll<DmQuocTich>("/api/dm/QuocTich"), "IdQuocTich", "TenNuoc", tbGvduocCuDiDaoTao.IdQuocGiaDen);
