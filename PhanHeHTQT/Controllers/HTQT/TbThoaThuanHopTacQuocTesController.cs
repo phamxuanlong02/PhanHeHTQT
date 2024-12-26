@@ -56,7 +56,7 @@ namespace PhanHeHTQT.Controllers.HTQT
             }
 
             var tbThoaThuanHopTacQuocTes = await TbThoaThuanHopTacQuocTes();
-            var tbThoaThuanHopTacQuocTe =tbThoaThuanHopTacQuocTes.FirstOrDefault(m=> m.IdThoaThuanHopTacQuocTe == id);
+            var tbThoaThuanHopTacQuocTe = tbThoaThuanHopTacQuocTes.FirstOrDefault(m => m.IdThoaThuanHopTacQuocTe == id);
             if (tbThoaThuanHopTacQuocTe == null)
             {
                 return NotFound();
@@ -79,14 +79,57 @@ namespace PhanHeHTQT.Controllers.HTQT
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdThoaThuanHopTacQuocTe,MaThoaThuan,TenThoaThuan,NoiDungTomTat,TenToChuc,NgayKyKet,SoVanBanKyKet,IdQuocGia,NgayHetHan")] TbThoaThuanHopTacQuocTe tbThoaThuanHopTacQuocTe)
         {
-
-            if (ModelState.IsValid)
+            try
             {
-                await ApiServices_.Create<TbThoaThuanHopTacQuocTe>("/api/htqt/ThoaThuanHopTacQuocTe", tbThoaThuanHopTacQuocTe);
-                return RedirectToAction(nameof(Index));
+                if (tbThoaThuanHopTacQuocTe.IdThoaThuanHopTacQuocTe < 0)
+                {
+                    ModelState.AddModelError("IdThoaThuanHopTacQuocTe", "ID không được là số âm.");
+                }
+                if (string.IsNullOrWhiteSpace(tbThoaThuanHopTacQuocTe.TenThoaThuan))
+                {
+                    ModelState.AddModelError("TenThoaThuan", "Tên thoả thuận không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbThoaThuanHopTacQuocTe.MaThoaThuan))
+                {
+                    ModelState.AddModelError("MaThoaThuan", "Mã thoả thuận không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbThoaThuanHopTacQuocTe.TenToChuc))
+                {
+                    ModelState.AddModelError("TenToChuc", "Tên tổ chức không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbThoaThuanHopTacQuocTe.NoiDungTomTat))
+                {
+                    ModelState.AddModelError("NoiDungTomTat", "Nội dung tóm tắt không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbThoaThuanHopTacQuocTe.SoVanBanKyKet))
+                {
+                    ModelState.AddModelError("SoVanBanKyKet", "Số văn bản ký kết không được để trống");
+                }
+                if (tbThoaThuanHopTacQuocTe.NgayKyKet > tbThoaThuanHopTacQuocTe.NgayHetHan)
+                {
+                    ModelState.AddModelError("NgayHetHan", "Ngày hết hạn phải lớn hơn hoặc bằng ngày ký kết.");
+                }
+                if (tbThoaThuanHopTacQuocTe.NgayKyKet == null)
+                {
+                    ModelState.AddModelError("NgayKyKet", "Ngày ký kết không được để trống.");
+                }
+                if (tbThoaThuanHopTacQuocTe.NgayHetHan == null)
+                {
+                    ModelState.AddModelError("NgayHetHan", "Ngày hết hạn không được để trống.");
+                }
+
+                if (ModelState.IsValid)
+                {
+                    await ApiServices_.Create<TbThoaThuanHopTacQuocTe>("/api/htqt/ThoaThuanHopTacQuocTe", tbThoaThuanHopTacQuocTe);
+                    return RedirectToAction(nameof(Index));
+                }
+                ViewData["IdQuocGia"] = new SelectList(await ApiServices_.GetAll<DmQuocTich>("/api/dm/QuocTich"), "IdQuocTich", "TenNuoc", tbThoaThuanHopTacQuocTe.IdQuocGia);
+                return View(tbThoaThuanHopTacQuocTe);
             }
-            ViewData["IdQuocGia"] = new SelectList(await ApiServices_.GetAll<DmQuocTich>("/api/dm/QuocTich"), "IdQuocTich", "TenNuoc", tbThoaThuanHopTacQuocTe.IdQuocGia);
-            return View(tbThoaThuanHopTacQuocTe);
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
         // GET: TbThoaThuanHopTacQuocTes/Edit/5
@@ -114,33 +157,76 @@ namespace PhanHeHTQT.Controllers.HTQT
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IdThoaThuanHopTacQuocTe,MaThoaThuan,TenThoaThuan,NoiDungTomTat,TenToChuc,NgayKyKet,SoVanBanKyKet,IdQuocGia,NgayHetHan")] TbThoaThuanHopTacQuocTe tbThoaThuanHopTacQuocTe)
         {
-            if (id != tbThoaThuanHopTacQuocTe.IdThoaThuanHopTacQuocTe)
+            try
             {
-                return NotFound();
+                if (id != tbThoaThuanHopTacQuocTe.IdThoaThuanHopTacQuocTe)
+                {
+                    return NotFound();
+                }
+
+                if (tbThoaThuanHopTacQuocTe.IdThoaThuanHopTacQuocTe < 0)
+                {
+                    ModelState.AddModelError("IdThoaThuanHopTacQuocTe", "ID không được là số âm.");
+                }
+                if (string.IsNullOrWhiteSpace(tbThoaThuanHopTacQuocTe.TenThoaThuan))
+                {
+                    ModelState.AddModelError("TenThoaThuan", "Tên thoả thuận không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbThoaThuanHopTacQuocTe.MaThoaThuan))
+                {
+                    ModelState.AddModelError("MaThoaThuan", "Mã thoả thuận không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbThoaThuanHopTacQuocTe.TenToChuc))
+                {
+                    ModelState.AddModelError("TenToChuc", "Tên tổ chức không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbThoaThuanHopTacQuocTe.NoiDungTomTat))
+                {
+                    ModelState.AddModelError("NoiDungTomTat", "Nội dung tóm tắt không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbThoaThuanHopTacQuocTe.SoVanBanKyKet))
+                {
+                    ModelState.AddModelError("SoVanBanKyKet", "Số văn bản ký kết không được để trống");
+                }
+                if (tbThoaThuanHopTacQuocTe.NgayKyKet > tbThoaThuanHopTacQuocTe.NgayHetHan)
+                {
+                    ModelState.AddModelError("NgayHetHan", "Ngày hết hạn phải lớn hơn hoặc bằng ngày ký kết.");
+                }
+                if (tbThoaThuanHopTacQuocTe.NgayKyKet == null)
+                {
+                    ModelState.AddModelError("NgayKyKet", "Ngày ký kết không được để trống.");
+                }
+                if (tbThoaThuanHopTacQuocTe.NgayHetHan == null)
+                {
+                    ModelState.AddModelError("NgayHetHan", "Ngày hết hạn không được để trống.");
+                }
+
+                if (ModelState.IsValid)
+                {
+                    try
+                    {
+                        await ApiServices_.Update<TbThoaThuanHopTacQuocTe>("/api/htqt/ThoaThuanHopTacQuocTe", id, tbThoaThuanHopTacQuocTe);
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (await TbThoaThuanHopTacQuocTeExists(tbThoaThuanHopTacQuocTe.IdThoaThuanHopTacQuocTe) == false)
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
+                ViewData["IdQuocGia"] = new SelectList(await ApiServices_.GetAll<DmQuocTich>("/api/dm/QuocTich"), "IdQuocTich", "TenNuoc", tbThoaThuanHopTacQuocTe.IdQuocGia);
+                return View(tbThoaThuanHopTacQuocTe);
             }
-
-
-            if (ModelState.IsValid)
+            catch (Exception ex)
             {
-                try
-                {
-                    await ApiServices_.Update<TbThoaThuanHopTacQuocTe>("/api/htqt/ThoaThuanHopTacQuocTe", id, tbThoaThuanHopTacQuocTe);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (await TbThoaThuanHopTacQuocTeExists(tbThoaThuanHopTacQuocTe.IdThoaThuanHopTacQuocTe) == false)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                return BadRequest();
             }
-            ViewData["IdQuocGia"] = new SelectList(await ApiServices_.GetAll<DmQuocTich>("/api/dm/QuocTich"), "IdQuocTich", "TenNuoc", tbThoaThuanHopTacQuocTe.IdQuocGia);
-            return View(tbThoaThuanHopTacQuocTe);
         }
 
         // GET: TbThoaThuanHopTacQuocTes/Delete/5
@@ -185,6 +271,7 @@ namespace PhanHeHTQT.Controllers.HTQT
                 // Giải mã dữ liệu JSON từ client
                 List<List<string>> data = JsonConvert.DeserializeObject<List<List<string>>>(json);
 
+                // Danh sách lưu các đối tượng TbThoaThuanHopTacQuocTe
                 List<TbThoaThuanHopTacQuocTe> lst = new List<TbThoaThuanHopTacQuocTe>();
 
                 // Khởi tạo Random để tạo ID ngẫu nhiên

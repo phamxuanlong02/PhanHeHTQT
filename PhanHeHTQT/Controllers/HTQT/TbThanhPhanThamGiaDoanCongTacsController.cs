@@ -32,10 +32,9 @@ namespace PhanHeHTQT.Controllers.HTQT
             tbThanhPhanThamGiaDoanCongTacs.ForEach(item =>
             {
                 item.IdCanBoNavigation = tbCanBos.FirstOrDefault(x => x.IdCanBo == item.IdCanBo);
+                item.IdCanBoNavigation.IdNguoiNavigation = tbNguois.FirstOrDefault(x => x.IdNguoi == item.IdCanBoNavigation.IdNguoi);
                 item.IdDoanCongTacNavigation = tbDoanCongTacs.FirstOrDefault(x => x.IdDoanCongTac == item.IdDoanCongTac);
                 item.IdVaiTroThamGiaNavigation = dmVaiTroThamGias.FirstOrDefault(x => x.IdVaiTroThamGia == item.IdVaiTroThamGia);
-                item.IdCanBoNavigation.IdNguoiNavigation = tbNguois.FirstOrDefault(x => x.IdNguoi == item.IdCanBoNavigation.IdNguoi);
-
             });
             return tbThanhPhanThamGiaDoanCongTacs;
         }
@@ -52,6 +51,7 @@ namespace PhanHeHTQT.Controllers.HTQT
 
             return tbcanbos;
         }
+
         // GET: TbThanhPhanThamGiaDoanCongTacs
         public async Task<IActionResult> Index()
         {
@@ -98,18 +98,37 @@ namespace PhanHeHTQT.Controllers.HTQT
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdThanhPhanThamGiaDoanCongTac,IdDoanCongTac,IdCanBo,IdVaiTroThamGia")] TbThanhPhanThamGiaDoanCongTac tbThanhPhanThamGiaDoanCongTac)
         {
-
-            if (await TbThanhPhanThamGiaDoanCongTacExists(tbThanhPhanThamGiaDoanCongTac.IdThanhPhanThamGiaDoanCongTac)) ModelState.AddModelError("IdThanhPhanThamGiaDoanCongTac", "Id này đã tồn tại!");
-            if (ModelState.IsValid)
+            try
             {
-                await ApiServices_.Create<TbThanhPhanThamGiaDoanCongTac>("/api/htqt/ThanhPhanThamGiaDoanCongTac", tbThanhPhanThamGiaDoanCongTac);
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["IdCanBo"] = new SelectList(await ApiServices_.GetAll<TbCanBo>("/api/cb/CanBo"), "IdCanBo", "IdNguoiNavigation.name", tbThanhPhanThamGiaDoanCongTac.IdCanBo);
-            ViewData["IdDoanCongTac"] = new SelectList(await ApiServices_.GetAll<TbDoanCongTac>("/api/htqt/DoanCongTac"), "IdDoanCongTac", "TenDoanCongTac", tbThanhPhanThamGiaDoanCongTac.IdDoanCongTac);
-            ViewData["IdVaiTroThamGia"] = new SelectList(await ApiServices_.GetAll<DmVaiTroThamGium>("/api/dm/VaiTroThamGia"), "IdVaiTroThamGia", "VaiTroThamGia", tbThanhPhanThamGiaDoanCongTac.IdVaiTroThamGia);
+                if (tbThanhPhanThamGiaDoanCongTac.IdThanhPhanThamGiaDoanCongTac < 0)
+                {
+                    ModelState.AddModelError("IdThanhPhanThamGiaDoanCongTac", "ID không được là số âm.");
+                }
+                if (tbThanhPhanThamGiaDoanCongTac.IdCanBo < 0)
+                {
+                    ModelState.AddModelError("IdCanBo", "ID không được là số âm.");
+                }
+                if (tbThanhPhanThamGiaDoanCongTac.IdVaiTroThamGia < 0)
+                {
+                    ModelState.AddModelError("IdVaiTroThamGia", "ID không được là số âm.");
+                }
 
-            return View(tbThanhPhanThamGiaDoanCongTac);
+                if (await TbThanhPhanThamGiaDoanCongTacExists(tbThanhPhanThamGiaDoanCongTac.IdThanhPhanThamGiaDoanCongTac)) ModelState.AddModelError("IdThanhPhanThamGiaDoanCongTac", "Id này đã tồn tại!");
+                if (ModelState.IsValid)
+                {
+                    await ApiServices_.Create<TbThanhPhanThamGiaDoanCongTac>("/api/htqt/ThanhPhanThamGiaDoanCongTac", tbThanhPhanThamGiaDoanCongTac);
+                    return RedirectToAction(nameof(Index));
+                }
+                ViewData["IdCanBo"] = new SelectList(await ApiServices_.GetAll<TbCanBo>("/api/cb/CanBo"), "IdCanBo", "IdNguoiNavigation.name", tbThanhPhanThamGiaDoanCongTac.IdCanBo);
+                ViewData["IdDoanCongTac"] = new SelectList(await ApiServices_.GetAll<TbDoanCongTac>("/api/htqt/DoanCongTac"), "IdDoanCongTac", "TenDoanCongTac", tbThanhPhanThamGiaDoanCongTac.IdDoanCongTac);
+                ViewData["IdVaiTroThamGia"] = new SelectList(await ApiServices_.GetAll<DmVaiTroThamGium>("/api/dm/VaiTroThamGia"), "IdVaiTroThamGia", "VaiTroThamGia", tbThanhPhanThamGiaDoanCongTac.IdVaiTroThamGia);
+
+                return View(tbThanhPhanThamGiaDoanCongTac);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
         // GET: TbThanhPhanThamGiaDoanCongTacs/Edit/5
@@ -138,34 +157,54 @@ namespace PhanHeHTQT.Controllers.HTQT
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IdThanhPhanThamGiaDoanCongTac,IdDoanCongTac,IdCanBo,IdVaiTroThamGia")] TbThanhPhanThamGiaDoanCongTac tbThanhPhanThamGiaDoanCongTac)
         {
-            if (id != tbThanhPhanThamGiaDoanCongTac.IdThanhPhanThamGiaDoanCongTac)
+            try
             {
-                return NotFound();
-            }
+                if (id != tbThanhPhanThamGiaDoanCongTac.IdThanhPhanThamGiaDoanCongTac)
+                {
+                    return NotFound();
+                }
 
-            if (ModelState.IsValid)
-            {
-                try
+                if (tbThanhPhanThamGiaDoanCongTac.IdThanhPhanThamGiaDoanCongTac < 0)
                 {
-                    await ApiServices_.Update<TbThanhPhanThamGiaDoanCongTac>("/api/htqt/ThanhPhanThamGiaDoanCongTac", id, tbThanhPhanThamGiaDoanCongTac);
+                    ModelState.AddModelError("IdThanhPhanThamGiaDoanCongTac", "ID không được là số âm.");
                 }
-                catch (DbUpdateConcurrencyException)
+                if (tbThanhPhanThamGiaDoanCongTac.IdCanBo < 0)
                 {
-                    if (await TbThanhPhanThamGiaDoanCongTacExists(tbThanhPhanThamGiaDoanCongTac.IdThanhPhanThamGiaDoanCongTac) == false)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("IdCanBo", "ID không được là số âm.");
                 }
-                return RedirectToAction(nameof(Index));
+                if (tbThanhPhanThamGiaDoanCongTac.IdVaiTroThamGia < 0)
+                {
+                    ModelState.AddModelError("IdVaiTroThamGia", "ID không được là số âm.");
+                }
+
+                if (ModelState.IsValid)
+                {
+                    try
+                    {
+                        await ApiServices_.Update<TbThanhPhanThamGiaDoanCongTac>("/api/htqt/ThanhPhanThamGiaDoanCongTac", id, tbThanhPhanThamGiaDoanCongTac);
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (await TbThanhPhanThamGiaDoanCongTacExists(tbThanhPhanThamGiaDoanCongTac.IdThanhPhanThamGiaDoanCongTac) == false)
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
+                ViewData["IdCanBo"] = new SelectList(await ApiServices_.GetAll<TbCanBo>("/api/cb/CanBo"), "IdCanBo", "IdCanBo", tbThanhPhanThamGiaDoanCongTac.IdCanBo);
+                ViewData["IdDoanCongTac"] = new SelectList(await ApiServices_.GetAll<TbDoanCongTac>("/api/htqt/DoanCongTac"), "IdDoanCongTac", "TenDoanCongTac", tbThanhPhanThamGiaDoanCongTac.IdDoanCongTac);
+                ViewData["IdVaiTroThamGia"] = new SelectList(await ApiServices_.GetAll<DmVaiTroThamGium>("/api/dm/VaiTroThamGia"), "IdVaiTroThamGia", "VaiTroThamGia", tbThanhPhanThamGiaDoanCongTac.IdVaiTroThamGia);
+                return View(tbThanhPhanThamGiaDoanCongTac);
             }
-            ViewData["IdCanBo"] = new SelectList(await ApiServices_.GetAll<TbCanBo>("/api/cb/CanBo"), "IdCanBo", "IdCanBo", tbThanhPhanThamGiaDoanCongTac.IdCanBo);
-            ViewData["IdDoanCongTac"] = new SelectList(await ApiServices_.GetAll<TbDoanCongTac>("/api/htqt/DoanCongTac"), "IdDoanCongTac", "TenDoanCongTac", tbThanhPhanThamGiaDoanCongTac.IdDoanCongTac);
-            ViewData["IdVaiTroThamGia"] = new SelectList(await ApiServices_.GetAll<DmVaiTroThamGium>("/api/dm/VaiTroThamGia"), "IdVaiTroThamGia", "VaiTroThamGia", tbThanhPhanThamGiaDoanCongTac.IdVaiTroThamGia);
-            return View(tbThanhPhanThamGiaDoanCongTac);
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
         // GET: TbThanhPhanThamGiaDoanCongTacs/Delete/5
@@ -211,6 +250,7 @@ namespace PhanHeHTQT.Controllers.HTQT
                 // Giải mã dữ liệu JSON từ client
                 List<List<string>> data = JsonConvert.DeserializeObject<List<List<string>>>(json);
 
+                // Danh sách lưu các đối tượng TbThanhPhanThamGiaDoanCongTac
                 List<TbThanhPhanThamGiaDoanCongTac> lst = new List<TbThanhPhanThamGiaDoanCongTac>();
 
                 // Khởi tạo Random để tạo ID ngẫu nhiên

@@ -144,6 +144,11 @@
             background-color: white; /* Đổi màu nền ô tìm kiếm */
         }
 
+        .dt-column-order {
+            display: none;
+        }
+
+
     </style>
 }
 
@@ -398,37 +403,52 @@
                             }
                         },
                         {
-                            className: 'btn btn-header btn-excel',
-                            text: '<i class="fas fa-file-import me-2" style="color: white"></i>Nhập Excel',
+                            // Định nghĩa nút tùy chỉnh để nhập file Excel
+                            className: 'btn btn-header btn-excel', // Thêm các lớp để định dạng nút
+                            text: '<i class="fas fa-file-import me-2" style="color: white"></i>Nhập Excel', // Nội dung HTML của nút, bao gồm biểu tượng và chữ
+
+                            // Định nghĩa hành động thực hiện khi nút được nhấn
                             action: function (e, dt, node, config) {
+                                // Gọi hàm import_excel để nhập file Excel
                                 import_excel((json) => {
+                                    // Phân tích chuỗi JSON nhập vào thành đối tượng
                                     let data = JSON.parse(json);
-                                    let list = data['Sheet1'];
-                                    let _ExcelNoSheet = [];
+                                    let list = data['Sheet1']; // Giả định dữ liệu nằm trong khóa 'Sheet1'
+
+                                    let _ExcelNoSheet = []; // Khởi tạo mảng để lưu trữ dữ liệu đã xử lý
+
+                                    // Lặp qua từng dòng trong sheet
                                     for (let i = 0; i < list.length; ++i) {
-                                        let arr = [];
+                                        let arr = []; // Khởi tạo mảng cho dòng hiện tại
+
+                                        // Chuyển từng cặp key-value trong dòng thành chuỗi và thêm vào mảng dòng
                                         for (const [key, value] of Object.entries(list[i])) {
                                             arr.push(value.toString());
                                         }
-                                        _ExcelNoSheet.push(arr);
+
+                                        _ExcelNoSheet.push(arr); // Thêm dòng đã xử lý vào mảng dữ liệu
                                     }
+
+                                    // Chuyển đổi dữ liệu đã xử lý thành chuỗi JSON để gửi lên server
                                     let _json = JSON.stringify(_ExcelNoSheet, null, 4);
-                                    console.log(_json);
+                                    console.log(_json); // Ghi log chuỗi JSON vào console để debug
+
+                                    // Gửi dữ liệu đã xử lý lên server bằng yêu cầu AJAX POST
                                     $.ajax({
-                                        method: "post",
-                                        url: "/TbThongTinHopTacs/Receive",
+                                        method: "post", // Phương thức HTTP
+                                        url: "/TbThongTinHopTacs/Receive", // Đường dẫn API trên server
                                         data: {
-                                            "json": _json,
+                                            "json": _json, // Dữ liệu gửi lên server
                                         },
+
+                                        // Callback khi yêu cầu thành công
                                         success: function (response) {
-                                            // Code to execute if the request succeeds
-
-                                            notify(`Success: ${response.value['msg']}`);
+                                            notify(`Thành công: ${response.value['msg']}`); // Thông báo thành công cho người dùng
                                         },
-                                        error: function (xhr, status, error) {
-                                            // Code to execute if the request fails
-                                            notify(`Error: ${xhr.responseJSON.value['msg']}`);
 
+                                        // Callback khi yêu cầu thất bại
+                                        error: function (xhr, status, error) {
+                                            notify(`Lỗi: ${xhr.responseJSON.value['msg']}`); // Thông báo lỗi cho người dùng
                                         }
                                     });
                                 });

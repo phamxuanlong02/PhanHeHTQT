@@ -53,21 +53,21 @@ namespace PhanHeHTQT.Controllers.HTQT
                 return BadRequest();
             }
         }
-            public async Task<IActionResult> Statistics()
+        public async Task<IActionResult> Statistics()
+        {
+            try
             {
-                try
-                {
                 List<TbDeAnDuAnChuongTrinh> getall = await TbDeAnDuAnChuongTrinhs();
-                    // Lấy data từ các table khác có liên quan (khóa ngoài) để hiển thị trên Index
-                    return View(getall);
+                // Lấy data từ các table khác có liên quan (khóa ngoài) để hiển thị trên Index
+                return View(getall);
 
-                    // Bắt lỗi các trường hợp ngoại lệ
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest();
-                }
+                // Bắt lỗi các trường hợp ngoại lệ
             }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
         // GET: TbDeAnDuAnChuongTrinhs/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -88,7 +88,7 @@ namespace PhanHeHTQT.Controllers.HTQT
                     return NotFound();
                 }
                 // Nếu đã tìm thấy Id tương ứng, chương trình sẽ dẫn đến view Details
-                // Hiển thị thông thi chi tiết CTĐT thành công
+                // Hiển thị thông thi chi tiết thành công
                 return View(tbDeAnDuAnChuongTrinh);
             }
             catch (Exception ex)
@@ -120,14 +120,57 @@ namespace PhanHeHTQT.Controllers.HTQT
         {
             try
             {
-                
+
+                if (tbDeAnDuAnChuongTrinh.IdDeAnDuAnChuongTrinh < 0)
+                {
+                    ModelState.AddModelError("IdDeAnDuAnChuongTrinh", "ID không được là số âm.");
+                }
+                if (tbDeAnDuAnChuongTrinh.TongKinhPhi < 0)
+                {
+                    ModelState.AddModelError("TongKinhPhi", "Tổng kinh phí không được là số âm.");
+                }
+                if (string.IsNullOrWhiteSpace(tbDeAnDuAnChuongTrinh.TenDeAnDuAnChuongTrinh))
+                {
+                    ModelState.AddModelError("TenDeAnDuAnChuongTrinh", "Tên cơ đề án dự án chương trình không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbDeAnDuAnChuongTrinh.MaDeAnDuAnChuongTrinh))
+                {
+                    ModelState.AddModelError("MaDeAnDuAnChuongTrinh", "Mã đề án dự án chương trình không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbDeAnDuAnChuongTrinh.NoiDungTomTat))
+                {
+                    ModelState.AddModelError("NoiDungTomTat", "Nội dung tóm tắt không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbDeAnDuAnChuongTrinh.MucTieu))
+                {
+                    ModelState.AddModelError("MucTieu", "Mục tiêu không được để trống");
+                }
+                if (tbDeAnDuAnChuongTrinh.TongKinhPhi == null || tbDeAnDuAnChuongTrinh.TongKinhPhi <= 0)
+                {
+                    ModelState.AddModelError("TongKinhPhi", "Tổng kinh phí không được bỏ trống và phải lớn hơn 0.");
+                }
+                if (tbDeAnDuAnChuongTrinh.ThoiGianHopTacTu > tbDeAnDuAnChuongTrinh.ThoiGianHopTacDen)
+                {
+                    ModelState.AddModelError("ThoiGianHopTacTu", "Thời gian hợp tác từ không được lớn hơn Thời gian hợp tác đến.");
+                }
+
+                if (tbDeAnDuAnChuongTrinh.ThoiGianHopTacTu == null)
+                {
+                    ModelState.AddModelError("ThoiGianHopTacTu", "Thời gian hợp tác từ không được để trống.");
+                }
+
+                if (tbDeAnDuAnChuongTrinh.ThoiGianHopTacDen == null)
+                {
+                    ModelState.AddModelError("ThoiGianHopTacDen", "Thời gian hợp tác đến không được để trống.");
+                }
+
                 if (await TbDeAnDuAnChuongTrinhExists(tbDeAnDuAnChuongTrinh.IdDeAnDuAnChuongTrinh)) ModelState.AddModelError("IdDeAnDuAnChuongTrinh", "ID này đã tồn tại!");
                 if (ModelState.IsValid)
                 {
                     await ApiServices_.Create<TbDeAnDuAnChuongTrinh>("/api/htqt/DeAnDuAnChuongTrinh", tbDeAnDuAnChuongTrinh);
                     return RedirectToAction(nameof(Index));
                 }
-                ViewData["IdNguonKinhPhiDeAnDuAnChuongTrinh"] = new SelectList(await ApiServices_.GetAll<DmNguonKinhPhiChoDeAn>("/api/htqt/DeAnDuAnChuongTrinh"), "IdNguonKinhPhiChoDeAn", "NguonKinhPhiChoDeAn", tbDeAnDuAnChuongTrinh.IdNguonKinhPhiDeAnDuAnChuongTrinh);
+                ViewData["IdNguonKinhPhiDeAnDuAnChuongTrinh"] = new SelectList(await ApiServices_.GetAll<DmNguonKinhPhiChoDeAn>("/api/dm/NguonKinhPhi"), "IdNguonKinhPhiChoDeAn", "NguonKinhPhiChoDeAn", tbDeAnDuAnChuongTrinh.IdNguonKinhPhiDeAnDuAnChuongTrinh);
                 return View(tbDeAnDuAnChuongTrinh);
             }
             catch (Exception ex)
@@ -169,6 +212,49 @@ namespace PhanHeHTQT.Controllers.HTQT
                     return NotFound();
                 }
 
+                if (tbDeAnDuAnChuongTrinh.IdDeAnDuAnChuongTrinh < 0)
+                {
+                    ModelState.AddModelError("IdDeAnDuAnChuongTrinh", "ID không được là số âm.");
+                }
+                if (tbDeAnDuAnChuongTrinh.TongKinhPhi < 0)
+                {
+                    ModelState.AddModelError("TongKinhPhi", "Tổng kinh phí không được là số âm.");
+                }
+                if (string.IsNullOrWhiteSpace(tbDeAnDuAnChuongTrinh.TenDeAnDuAnChuongTrinh))
+                {
+                    ModelState.AddModelError("TenDeAnDuAnChuongTrinh", "Tên cơ đề án dự án chương trình không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbDeAnDuAnChuongTrinh.MaDeAnDuAnChuongTrinh))
+                {
+                    ModelState.AddModelError("MaDeAnDuAnChuongTrinh", "Mã đề án dự án chương trình không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbDeAnDuAnChuongTrinh.NoiDungTomTat))
+                {
+                    ModelState.AddModelError("NoiDungTomTat", "Nội dung tóm tắt không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbDeAnDuAnChuongTrinh.MucTieu))
+                {
+                    ModelState.AddModelError("MucTieu", "Mục tiêu không được để trống");
+                }
+                if (tbDeAnDuAnChuongTrinh.TongKinhPhi == null || tbDeAnDuAnChuongTrinh.TongKinhPhi <= 0)
+                {
+                    ModelState.AddModelError("TongKinhPhi", "Tổng kinh phí không được bỏ trống và phải lớn hơn 0.");
+                }
+                if (tbDeAnDuAnChuongTrinh.ThoiGianHopTacTu > tbDeAnDuAnChuongTrinh.ThoiGianHopTacDen)
+                {
+                    ModelState.AddModelError("ThoiGianHopTacTu", "Thời gian hợp tác từ không được lớn hơn Thời gian hợp tác đến.");
+                }
+
+                if (tbDeAnDuAnChuongTrinh.ThoiGianHopTacTu == null)
+                {
+                    ModelState.AddModelError("ThoiGianHopTacTu", "Thời gian hợp tác từ không được để trống.");
+                }
+
+                if (tbDeAnDuAnChuongTrinh.ThoiGianHopTacDen == null)
+                {
+                    ModelState.AddModelError("ThoiGianHopTacDen", "Thời gian hợp tác đến không được để trống.");
+                }
+
 
                 if (ModelState.IsValid)
                 {
@@ -191,11 +277,12 @@ namespace PhanHeHTQT.Controllers.HTQT
                 }
                 ViewData["IdNguonKinhPhiDeAnDuAnChuongTrinh"] = new SelectList(await ApiServices_.GetAll<DmNguonKinhPhiChoDeAn>("/api/htqt/DeAnDuAnChuongTrinh"), "IdNguonKinhPhiChoDeAn", "NguonKinhPhiChoDeAn", tbDeAnDuAnChuongTrinh.IdNguonKinhPhiDeAnDuAnChuongTrinh);
                 return View(tbDeAnDuAnChuongTrinh);
-            } 
-            catch (Exception ex){
-                return BadRequest();
-                }
             }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
+        }
 
         // GET: TbDeAnDuAnChuongTrinhs/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -236,7 +323,7 @@ namespace PhanHeHTQT.Controllers.HTQT
             {
                 return BadRequest();
             }
-            
+
         }
 
         //Import Excel
@@ -278,7 +365,7 @@ namespace PhanHeHTQT.Controllers.HTQT
                     model.IdDeAnDuAnChuongTrinh = id; // Gán ID
                     model.MaDeAnDuAnChuongTrinh = item[0];
                     model.TenDeAnDuAnChuongTrinh = item[1];
-                    model.NoiDungTomTat = item[2]; 
+                    model.NoiDungTomTat = item[2];
                     model.MucTieu = item[3];
                     model.ThoiGianHopTacTu = DateOnly.ParseExact(item[4], "dd/MM/yyyy", CultureInfo.InvariantCulture);
                     model.ThoiGianHopTacDen = DateOnly.ParseExact(item[5], "dd/MM/yyyy", CultureInfo.InvariantCulture);

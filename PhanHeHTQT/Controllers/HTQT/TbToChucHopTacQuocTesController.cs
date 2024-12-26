@@ -103,16 +103,50 @@ namespace PhanHeHTQT.Controllers.HTQT
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdToChucHopTacQuocTe,MaHopTac,TenToChuc,IdQuocGia,NoiDung,ThoiGianKyKet,KetQuaHopTac,LoaiToChuc")] TbToChucHopTacQuocTe tbToChucHopTacQuocTe)
         {
-            
-
-            if (ModelState.IsValid)
+            try
             {
-                await ApiServices_.Create<TbToChucHopTacQuocTe>("/api/htqt/ToChucHopTacDoanhNghiep", tbToChucHopTacQuocTe);
-                return RedirectToAction(nameof(Index));
+                if (tbToChucHopTacQuocTe.IdToChucHopTacQuocTe < 0)
+                {
+                    ModelState.AddModelError("IdToChucHopTacQuocTe", "ID không được là số âm.");
+                }
+                if (string.IsNullOrWhiteSpace(tbToChucHopTacQuocTe.MaHopTac))
+                {
+                    ModelState.AddModelError("MaHopTac", "Mã hợp tác không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbToChucHopTacQuocTe.TenToChuc))
+                {
+                    ModelState.AddModelError("TenToChuc", "Tên tổ chức không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbToChucHopTacQuocTe.NoiDung))
+                {
+                    ModelState.AddModelError("NoiDung", "Nội dung không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbToChucHopTacQuocTe.KetQuaHopTac))
+                {
+                    ModelState.AddModelError("KetQuaHopTac", "Kết quả hợp tác không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbToChucHopTacQuocTe.LoaiToChuc))
+                {
+                    ModelState.AddModelError("LoaiToChuc", "Loại tổ chức không được để trống");
+                }
+                if (tbToChucHopTacQuocTe.ThoiGianKyKet == null)
+                {
+                    ModelState.AddModelError("ThoiGianKyKet", "Thời gian ký kết không được để trống.");
+                }
+
+                if (ModelState.IsValid)
+                {
+                    await ApiServices_.Create<TbToChucHopTacQuocTe>("/api/htqt/ToChucHopTacDoanhNghiep", tbToChucHopTacQuocTe);
+                    return RedirectToAction(nameof(Index));
+                }
+                ViewData["IdQuocGia"] = new SelectList(await ApiServices_.GetAll<DmQuocTich>("/api/dm/QuocTich"), "IdQuocTich", "TenNuoc");
+                ViewData["IdHinhThucHopTac"] = new SelectList(await ApiServices_.GetAll<DmHinhThucHopTac>("/api/dm/HinhThucHopTac"), "IdHinhThucHopTac", "TenHinhThuc");
+                return View(tbToChucHopTacQuocTe);
             }
-            ViewData["IdQuocGia"] = new SelectList(await ApiServices_.GetAll<DmQuocTich>("/api/dm/QuocTich"), "IdQuocTich", "TenNuoc");
-            ViewData["IdHinhThucHopTac"] = new SelectList(await ApiServices_.GetAll<DmHinhThucHopTac>("/api/dm/HinhThucHopTac"), "IdHinhThucHopTac", "TenHinhThuc");
-            return View(tbToChucHopTacQuocTe);
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
         // GET: TbToChucHopTacQuocTes/Edit/5
@@ -140,34 +174,68 @@ namespace PhanHeHTQT.Controllers.HTQT
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IdToChucHopTacQuocTe,MaHopTac,TenToChuc,IdQuocGia,NoiDung,ThoiGianKyKet,KetQuaHopTac,LoaiToChuc")] TbToChucHopTacQuocTe tbToChucHopTacQuocTe)
         {
-            if (id != tbToChucHopTacQuocTe.IdToChucHopTacQuocTe)
+            try
             {
-                return NotFound();
+                if (id != tbToChucHopTacQuocTe.IdToChucHopTacQuocTe)
+                {
+                    return NotFound();
+                }
+
+                if (tbToChucHopTacQuocTe.IdToChucHopTacQuocTe < 0)
+                {
+                    ModelState.AddModelError("IdToChucHopTacQuocTe", "ID không được là số âm.");
+                }
+                if (string.IsNullOrWhiteSpace(tbToChucHopTacQuocTe.MaHopTac))
+                {
+                    ModelState.AddModelError("MaHopTac", "Mã hợp tác không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbToChucHopTacQuocTe.TenToChuc))
+                {
+                    ModelState.AddModelError("TenToChuc", "Tên tổ chức không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbToChucHopTacQuocTe.NoiDung))
+                {
+                    ModelState.AddModelError("NoiDung", "Nội dung không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbToChucHopTacQuocTe.KetQuaHopTac))
+                {
+                    ModelState.AddModelError("KetQuaHopTac", "Kết quả hợp tác không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbToChucHopTacQuocTe.LoaiToChuc))
+                {
+                    ModelState.AddModelError("LoaiToChuc", "Loại tổ chức không được để trống");
+                }
+                if (tbToChucHopTacQuocTe.ThoiGianKyKet == null)
+                {
+                    ModelState.AddModelError("ThoiGianKyKet", "Thời gian ký kết không được để trống.");
+                }
+
+                if (ModelState.IsValid)
+                {
+                    try
+                    {
+                        await ApiServices_.Update<TbToChucHopTacQuocTe>("/api/htqt/ToChucHopTacQuocTe", id, tbToChucHopTacQuocTe);
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (await TbToChucHopTacQuocTeExists(tbToChucHopTacQuocTe.IdToChucHopTacQuocTe) == false)
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
+                ViewData["IdQuocGia"] = new SelectList(await ApiServices_.GetAll<DmQuocTich>("/api/dm/QuocTich"), "IdQuocTich", "TenNuoc");
+                return View(tbToChucHopTacQuocTe);
             }
-
-            
-
-            if (ModelState.IsValid)
+            catch (Exception ex)
             {
-                try
-                {
-                    await ApiServices_.Update<TbToChucHopTacQuocTe>("/api/htqt/ToChucHopTacQuocTe", id, tbToChucHopTacQuocTe);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (await TbToChucHopTacQuocTeExists(tbToChucHopTacQuocTe.IdToChucHopTacQuocTe) == false)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                return BadRequest();
             }
-            ViewData["IdQuocGia"] = new SelectList(await ApiServices_.GetAll<DmQuocTich>("/api/dm/QuocTich"), "IdQuocTich", "TenNuoc");
-            return View(tbToChucHopTacQuocTe);
         }
 
         // GET: TbToChucHopTacQuocTes/Delete/5
@@ -211,6 +279,7 @@ namespace PhanHeHTQT.Controllers.HTQT
                 // Giải mã dữ liệu JSON từ client
                 List<List<string>> data = JsonConvert.DeserializeObject<List<List<string>>>(json);
 
+                // Danh sách lưu các đối tượng TbToChucHopTacQuocTe
                 List<TbToChucHopTacQuocTe> lst = new List<TbToChucHopTacQuocTe>();
 
                 // Khởi tạo Random để tạo ID ngẫu nhiên

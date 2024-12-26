@@ -23,11 +23,12 @@ namespace PhanHeHTQT.Controllers.HTQT
             ApiServices_ = services;
         }
 
-        private async Task<List<TbLuuHocSinhSinhVienNn>> TbLuuHocSinhSinhVienNns(){
+        private async Task<List<TbLuuHocSinhSinhVienNn>> TbLuuHocSinhSinhVienNns()
+        {
             List<TbLuuHocSinhSinhVienNn> tbLuuHocSinhSinhVienNns = await ApiServices_.GetAll<TbLuuHocSinhSinhVienNn>("/api/htqt/LuuHocSinhSinhVienNN");
             List<DmLoaiLuuHocSinh> dmLoaiLuuHocSinhs = await ApiServices_.GetAll<DmLoaiLuuHocSinh>("/api/dm/LoaiLuuHocSinh");
             List<DmNguonKinhPhiChoLuuHocSinh> dmNguonKinhPhiChoLuuHocSinhs = await ApiServices_.GetAll<DmNguonKinhPhiChoLuuHocSinh>("/api/dm/NguonKinhPhiChoLuuHocSinh");
-            tbLuuHocSinhSinhVienNns.ForEach(item => { 
+            tbLuuHocSinhSinhVienNns.ForEach(item => {
                 item.IdLoaiLuuHocSinhNavigation = dmLoaiLuuHocSinhs.FirstOrDefault(x => x.IdLoaiLuuHocSinh == item.IdLoaiLuuHocSinh);
                 item.IdNguonKinhPhiLuuHocSinhNavigation = dmNguonKinhPhiChoLuuHocSinhs.FirstOrDefault(x => x.IdNguonKinhPhiChoLuuHocSinh == item.IdNguonKinhPhiLuuHocSinh);
             });
@@ -80,16 +81,35 @@ namespace PhanHeHTQT.Controllers.HTQT
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("IdLuuHocSinhSinhVienNn,IdNguoiHoc,IdNguonKinhPhiLuuHocSinh,IdLoaiLuuHocSinh")] TbLuuHocSinhSinhVienNn tbLuuHocSinhSinhVienNn)
         {
-
-            if (await TbLuuHocSinhSinhVienNnExists(tbLuuHocSinhSinhVienNn.IdLuuHocSinhSinhVienNn)) ModelState.AddModelError("IdLuuHocSinhSinhVienNn", "Id này đã tồn tại!");
-            if (ModelState.IsValid)
+            try
             {
-                await ApiServices_.Create<TbLuuHocSinhSinhVienNn>("/api/htqt/LuuHocSinhSinhVienNN", tbLuuHocSinhSinhVienNn);
-                return RedirectToAction(nameof(Index));
+                if (tbLuuHocSinhSinhVienNn.IdNguoiHoc < 0)
+                {
+                    ModelState.AddModelError("IdNguoiHoc", "Id người học không được là số âm.");
+                }
+                if (tbLuuHocSinhSinhVienNn.IdLuuHocSinhSinhVienNn < 0)
+                {
+                    ModelState.AddModelError("IdLuuHocSinhSinhVienNn", "Id luu học sinh sinh viên không được là số âm.");
+                }
+                if (await TbLuuHocSinhSinhVienNnExists(tbLuuHocSinhSinhVienNn.IdLuuHocSinhSinhVienNn))
+                {
+                    ModelState.AddModelError("IdLuuHocSinhSinhVienNn", "Id này đã tồn tại!");
+                }
+
+                if (await TbLuuHocSinhSinhVienNnExists(tbLuuHocSinhSinhVienNn.IdLuuHocSinhSinhVienNn)) ModelState.AddModelError("IdLuuHocSinhSinhVienNn", "Id này đã tồn tại!");
+                if (ModelState.IsValid)
+                {
+                    await ApiServices_.Create<TbLuuHocSinhSinhVienNn>("/api/htqt/LuuHocSinhSinhVienNN", tbLuuHocSinhSinhVienNn);
+                    return RedirectToAction(nameof(Index));
+                }
+                ViewData["IdLoaiLuuHocSinh"] = new SelectList(await ApiServices_.GetAll<DmLoaiLuuHocSinh>("/api/dm/LoaiLuuHocSinh"), "IdLoaiLuuHocSinh", "LoaiLuuHocSinh", tbLuuHocSinhSinhVienNn.IdLoaiLuuHocSinh);
+                ViewData["IdNguonKinhPhiLuuHocSinh"] = new SelectList(await ApiServices_.GetAll<DmNguonKinhPhiChoLuuHocSinh>("/api/dm/NguonKinhPhiChoLuuHocSinh"), "IdNguonKinhPhiChoLuuHocSinh", "NguonKinhPhiChoLuuHocSinh", tbLuuHocSinhSinhVienNn.IdNguonKinhPhiLuuHocSinh);
+                return View(tbLuuHocSinhSinhVienNn);
             }
-            ViewData["IdLoaiLuuHocSinh"] = new SelectList(await ApiServices_.GetAll<DmLoaiLuuHocSinh>("/api/dm/LoaiLuuHocSinh"), "IdLoaiLuuHocSinh", "LoaiLuuHocSinh", tbLuuHocSinhSinhVienNn.IdLoaiLuuHocSinh);
-            ViewData["IdNguonKinhPhiLuuHocSinh"] = new SelectList(await ApiServices_.GetAll<DmNguonKinhPhiChoLuuHocSinh>("/api/dm/NguonKinhPhiChoLuuHocSinh"), "IdNguonKinhPhiChoLuuHocSinh", "NguonKinhPhiChoLuuHocSinh", tbLuuHocSinhSinhVienNn.IdNguonKinhPhiLuuHocSinh);
-            return View(tbLuuHocSinhSinhVienNn);
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
         // GET: TbLuuHocSinhSinhVienNns/Edit/5
@@ -118,33 +138,53 @@ namespace PhanHeHTQT.Controllers.HTQT
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IdLuuHocSinhSinhVienNn,IdNguoiHoc,IdNguonKinhPhiLuuHocSinh,IdLoaiLuuHocSinh")] TbLuuHocSinhSinhVienNn tbLuuHocSinhSinhVienNn)
         {
-            if (id != tbLuuHocSinhSinhVienNn.IdLuuHocSinhSinhVienNn)
+            try
             {
-                return NotFound();
-            }
+                if (id != tbLuuHocSinhSinhVienNn.IdLuuHocSinhSinhVienNn)
+                {
+                    return NotFound();
+                }
 
-            if (ModelState.IsValid)
-            {
-                try
+                if (tbLuuHocSinhSinhVienNn.IdNguoiHoc < 0)
                 {
-                    await ApiServices_.Update<TbLuuHocSinhSinhVienNn>("/api/htqt/LuuHocSinhSinhVienNN", id, tbLuuHocSinhSinhVienNn);    
+                    ModelState.AddModelError("IdNguoiHoc", "Id người học không được là số âm.");
                 }
-                catch (DbUpdateConcurrencyException)
+                if (tbLuuHocSinhSinhVienNn.IdLuuHocSinhSinhVienNn < 0)
                 {
-                    if (await TbLuuHocSinhSinhVienNnExists(tbLuuHocSinhSinhVienNn.IdLuuHocSinhSinhVienNn) == false)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError("IdLuuHocSinhSinhVienNn", "Id luu học sinh sinh viên không được là số âm.");
                 }
-                return RedirectToAction(nameof(Index));
+                if (await TbLuuHocSinhSinhVienNnExists(tbLuuHocSinhSinhVienNn.IdLuuHocSinhSinhVienNn))
+                {
+                    ModelState.AddModelError("IdLuuHocSinhSinhVienNn", "Id này đã tồn tại!");
+                }
+
+                if (ModelState.IsValid)
+                {
+                    try
+                    {
+                        await ApiServices_.Update<TbLuuHocSinhSinhVienNn>("/api/htqt/LuuHocSinhSinhVienNN", id, tbLuuHocSinhSinhVienNn);
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (await TbLuuHocSinhSinhVienNnExists(tbLuuHocSinhSinhVienNn.IdLuuHocSinhSinhVienNn) == false)
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
+                ViewData["IdLoaiLuuHocSinh"] = new SelectList(await ApiServices_.GetAll<DmLoaiLuuHocSinh>("/api/dm/LoaiLuuHocSinh"), "IdLoaiLuuHocSinh", "LoaiLuuHocSinh", tbLuuHocSinhSinhVienNn.IdLoaiLuuHocSinh);
+                ViewData["IdNguonKinhPhiLuuHocSinh"] = new SelectList(await ApiServices_.GetAll<DmNguonKinhPhiChoLuuHocSinh>("/api/dm/NguonKinhPhiChoLuuHocSinh"), "IdNguonKinhPhiChoLuuHocSinh", "NguonKinhPhiChoLuuHocSinh", tbLuuHocSinhSinhVienNn.IdNguonKinhPhiLuuHocSinh);
+                return View(tbLuuHocSinhSinhVienNn);
             }
-            ViewData["IdLoaiLuuHocSinh"] = new SelectList(await ApiServices_.GetAll<DmLoaiLuuHocSinh>("/api/dm/LoaiLuuHocSinh"), "IdLoaiLuuHocSinh", "LoaiLuuHocSinh", tbLuuHocSinhSinhVienNn.IdLoaiLuuHocSinh);
-            ViewData["IdNguonKinhPhiLuuHocSinh"] = new SelectList(await ApiServices_.GetAll<DmNguonKinhPhiChoLuuHocSinh>("/api/dm/NguonKinhPhiChoLuuHocSinh"), "IdNguonKinhPhiChoLuuHocSinh", "NguonKinhPhiChoLuuHocSinh", tbLuuHocSinhSinhVienNn.IdNguonKinhPhiLuuHocSinh);
-            return View(tbLuuHocSinhSinhVienNn);
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
         }
 
         // GET: TbLuuHocSinhSinhVienNns/Delete/5
@@ -189,6 +229,7 @@ namespace PhanHeHTQT.Controllers.HTQT
                 // Giải mã dữ liệu JSON từ client
                 List<List<string>> data = JsonConvert.DeserializeObject<List<List<string>>>(json);
 
+                // Danh sách lưu các đối tượng TbLuuHocSinhSinhVienNn
                 List<TbLuuHocSinhSinhVienNn> lst = new List<TbLuuHocSinhSinhVienNn>();
 
                 // Khởi tạo Random để tạo ID ngẫu nhiên

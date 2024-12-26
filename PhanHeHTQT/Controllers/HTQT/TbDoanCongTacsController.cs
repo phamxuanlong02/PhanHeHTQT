@@ -83,11 +83,11 @@ namespace PhanHeHTQT.Controllers.HTQT
 
                 return View(tbDoanCongTac);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return BadRequest();
             }
-                            
+
         }
 
         /// <summary>
@@ -96,15 +96,16 @@ namespace PhanHeHTQT.Controllers.HTQT
         /// <returns></returns> 
         public async Task<IActionResult> Create()
         {
-            try {
+            try
+            {
                 ViewData["IdPhanLoaiDoanRaDoanVao"] = new SelectList(await ApiServices_.GetAll<DmPhanLoaiDoanRaDoanVao>("/api/dm/PhanLoaiDoanRaDoanVao"), "IdPhanLoaiDoanRaDoanVao", "PhanLoaiDoanRaDoanVao");
                 ViewData["IdQuocGiaDoan"] = new SelectList(await ApiServices_.GetAll<DmQuocTich>("/api/dm/QuocTich"), "IdQuocTich", "TenNuoc");
                 return View();
-            } 
+            }
             catch (Exception ex)
-            { 
-                return BadRequest(); 
-            }            
+            {
+                return BadRequest();
+            }
         }
 
         // POST: TbDoanCongTacs/Create
@@ -116,6 +117,46 @@ namespace PhanHeHTQT.Controllers.HTQT
         {
             try
             {
+                if (tbDoanCongTac.IdDoanCongTac < 0)
+                {
+                    ModelState.AddModelError("IdDoanCongTac", "ID không được là số âm.");
+                }
+                if (string.IsNullOrWhiteSpace(tbDoanCongTac.MaDoanCongTac))
+                {
+                    ModelState.AddModelError("MaDoanCongTac", "Mã đoàn công tác không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbDoanCongTac.TenDoanCongTac))
+                {
+                    ModelState.AddModelError("TenDoanCongTac", "Tên đoàn công tác không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbDoanCongTac.SoQuyetDinh))
+                {
+                    ModelState.AddModelError("SoQuyetDinh", "Số quyết định không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbDoanCongTac.MucDichCongTac))
+                {
+                    ModelState.AddModelError("MucDichCongTac", "Mục đích công tác không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbDoanCongTac.KetQuaCongTac))
+                {
+                    ModelState.AddModelError("KetQuaCongTac", "Kết quả công tác không được để trống");
+                }
+                if (tbDoanCongTac.NgayQuyetDinh == null)
+                {
+                    ModelState.AddModelError("NgayQuyetDinh", "Ngày quyết định không được để trống.");
+                }
+                else if (tbDoanCongTac.NgayQuyetDinh > DateOnly.FromDateTime(DateTime.Now))
+                {
+                    ModelState.AddModelError("NgayQuyetDinh", "Ngày quyết định không được lớn hơn ngày hiện tại.");
+                }
+                if (tbDoanCongTac.ThoiGianBatDau == null)
+                {
+                    ModelState.AddModelError("ThoiGianBatDau", "Thời gian bắt đầu không được để trống.");
+                }
+                else if (tbDoanCongTac.ThoiGianBatDau < tbDoanCongTac.NgayQuyetDinh)
+                {
+                    ModelState.AddModelError("ThoiGianBatDau", "Thời gian bắt đầu không được trước ngày quyết định.");
+                }
 
                 if (await TbDoanCongTacExists(tbDoanCongTac.IdDoanCongTac)) ModelState.AddModelError("IdDoanCongTac", "ID này đã tồn tại!");
                 if (ModelState.IsValid)
@@ -131,13 +172,14 @@ namespace PhanHeHTQT.Controllers.HTQT
             {
                 return BadRequest();
             }
-            
+
         }
 
         // GET: TbDoanCongTacs/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            try {
+            try
+            {
                 if (id == null || id < 0) //Kiểm tra ID null hoặc số âm
                 {
                     ModelState.AddModelError("Id", "ID không được là số âm hoặc null.");
@@ -157,7 +199,7 @@ namespace PhanHeHTQT.Controllers.HTQT
             {
                 return BadRequest();
             }
-            
+
         }
 
         // POST: TbDoanCongTacs/Edit/5
@@ -174,7 +216,46 @@ namespace PhanHeHTQT.Controllers.HTQT
                     return NotFound();
                 }
 
-
+                if (tbDoanCongTac.IdDoanCongTac < 0)
+                {
+                    ModelState.AddModelError("IdDoanCongTac", "ID không được là số âm.");
+                }
+                if (string.IsNullOrWhiteSpace(tbDoanCongTac.MaDoanCongTac))
+                {
+                    ModelState.AddModelError("MaDoanCongTac", "Mã đoàn công tác không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbDoanCongTac.TenDoanCongTac))
+                {
+                    ModelState.AddModelError("TenDoanCongTac", "Tên đoàn công tác không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbDoanCongTac.SoQuyetDinh))
+                {
+                    ModelState.AddModelError("SoQuyetDinh", "Số quyết định không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbDoanCongTac.MucDichCongTac))
+                {
+                    ModelState.AddModelError("MucDichCongTac", "Mục đích công tác không được để trống");
+                }
+                if (string.IsNullOrWhiteSpace(tbDoanCongTac.KetQuaCongTac))
+                {
+                    ModelState.AddModelError("KetQuaCongTac", "Kết quả công tác không được để trống");
+                }
+                if (tbDoanCongTac.NgayQuyetDinh == null)
+                {
+                    ModelState.AddModelError("NgayQuyetDinh", "Ngày quyết định không được để trống.");
+                }
+                else if (tbDoanCongTac.NgayQuyetDinh > DateOnly.FromDateTime(DateTime.Now))
+                {
+                    ModelState.AddModelError("NgayQuyetDinh", "Ngày quyết định không được lớn hơn ngày hiện tại.");
+                }
+                if (tbDoanCongTac.ThoiGianBatDau == null)
+                {
+                    ModelState.AddModelError("ThoiGianBatDau", "Thời gian bắt đầu không được để trống.");
+                }
+                else if (tbDoanCongTac.ThoiGianBatDau < tbDoanCongTac.NgayQuyetDinh)
+                {
+                    ModelState.AddModelError("ThoiGianBatDau", "Thời gian bắt đầu không được trước ngày quyết định.");
+                }
                 if (ModelState.IsValid)
                 {
                     try
@@ -226,7 +307,7 @@ namespace PhanHeHTQT.Controllers.HTQT
             {
                 return BadRequest();
             }
-            
+
         }
 
         // POST: TbDoanCongTacs/Delete/5
@@ -260,6 +341,7 @@ namespace PhanHeHTQT.Controllers.HTQT
                 // Giải mã dữ liệu JSON từ client
                 List<List<string>> data = JsonConvert.DeserializeObject<List<List<string>>>(json);
 
+                // Danh sách lưu các đối tượng TbDoanCongTac
                 List<TbDoanCongTac> lst = new List<TbDoanCongTac>();
 
                 // Khởi tạo Random để tạo ID ngẫu nhiên
